@@ -123,7 +123,7 @@ export default function LandingPage() {
 
             <div className="flex gap-3 flex-wrap animate-[fadeSlideUp_0.7s_ease_0.3s_both]">
               <Link
-                href="/book"
+                href="/#CTA"
                 className="bg-[#0f4f3a] text-[#e1f5ee] px-6 py-3 rounded-full text-sm font-medium hover:bg-[#0a3829] hover:-translate-y-0.5 active:scale-95 transition-all duration-200 shadow-md shadow-[#0f4f3a]/20"
               >
                 Book an appointment
@@ -209,7 +209,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="bg-[#1d9e75] py-24 px-6 text-center">
+      <section className="bg-[#1d9e75] py-24 px-6 text-center" id="CTA">
         <div className="max-w-2xl mx-auto">
           <h2 className="fraunces text-5xl text-[#0f2d20] mb-4 leading-tight">
             Ready to skip the queue?
