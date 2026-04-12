@@ -65,7 +65,7 @@ export default function SignInPage() {
       if (role === "admin") {
         router.push("/admin");
       } else {
-        router.push("/dashboard");
+        router.push("/patient");
       }
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";

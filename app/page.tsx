@@ -218,7 +218,7 @@ export default function LandingPage() {
             Join patients already booking smarter with MediBook.
           </p>
           <Link
-            href="/book"
+            href="/sign-up"
             className="inline-block bg-[#0f2d20] text-[#e1f5ee] px-8 py-4 rounded-full text-base font-medium hover:bg-[#0a1f15] hover:-translate-y-1 active:scale-95 transition-all duration-200 shadow-xl shadow-[#0f2d20]/30"
           >
             Book your first appointment
