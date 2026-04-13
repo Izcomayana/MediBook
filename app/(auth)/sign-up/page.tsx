@@ -2,11 +2,11 @@
 
 import { useState, FormEvent } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { doc, setDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db } from "@/lib/firebase";
 
-// ── Helpers ────────────────────────────────────────────────────────────────
 function getErrorMessage(code: string): string {
   switch (code) {
     case "auth/email-already-in-use":
@@ -35,7 +35,6 @@ function EyeIcon({ open }: { open: boolean }) {
   );
 }
 
-// Strength indicator
 function PasswordStrength({ password }: { password: string }) {
   const checks = [
     password.length >= 6,
@@ -46,9 +45,7 @@ function PasswordStrength({ password }: { password: string }) {
   const strength = checks.filter(Boolean).length;
   const labels = ["", "Weak", "Fair", "Good", "Strong"];
   const colors = ["", "#ef4444", "#f59e0b", "#3b82f6", "#1d9e75"];
-
   if (!password) return null;
-
   return (
     <div className="flex items-center gap-2 mt-1.5">
       <div className="flex gap-1 flex-1">
@@ -67,29 +64,23 @@ function PasswordStrength({ password }: { password: string }) {
   );
 }
 
-// ── Page ───────────────────────────────────────────────────────────────────
 export default function SignUpPage() {
   const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
-  const [showPw, setShowPw] = useState(false);
-  const [showCf, setShowCf] = useState(false);
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [confirm, setConfirm]   = useState("");
+  const [showPw, setShowPw]     = useState(false);
+  const [showCf, setShowCf]     = useState(false);
+  const [error, setError]       = useState("");
+  const [loading, setLoading]   = useState(false);
+  const router = useRouter();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirm) {
-      setError("Passwords do not match.");
-      return;
-    }
-    if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
-      return;
-    }
+    if (password !== confirm) { setError("Passwords do not match."); return; }
+    if (password.length < 6)  { setError("Password must be at least 6 characters."); return; }
 
     setLoading(true);
 
@@ -105,11 +96,11 @@ export default function SignUpPage() {
         uid: user.uid,
         fullName,
         email,
-        role: "patient",          // default role — change to "admin" manually in Firestore for admin accounts
+        role: "patient",
         createdAt: serverTimestamp(),
       });
 
-      // AuthContext onAuthStateChanged will handle redirect
+      router.push("/patient");
     } catch (err: unknown) {
       const code = (err as { code?: string }).code ?? "";
       setError(getErrorMessage(code));
@@ -117,7 +108,7 @@ export default function SignUpPage() {
     }
   };
 
-  const passwordsMatch = confirm.length > 0 && password === confirm;
+  const passwordsMatch    = confirm.length > 0 && password === confirm;
   const passwordsMismatch = confirm.length > 0 && password !== confirm;
 
   return (
@@ -126,20 +117,18 @@ export default function SignUpPage() {
         @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,600;1,400&family=DM+Sans:wght@400;500&display=swap');
         body { font-family: 'DM Sans', sans-serif; background: #f8f6f1; margin: 0; }
         .fraunces { font-family: 'Fraunces', serif; }
-
         @keyframes fadeSlideUp {
           from { opacity: 0; transform: translateY(20px); }
           to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes shake {
           0%, 100% { transform: translateX(0); }
-          20%       { transform: translateX(-6px); }
-          40%       { transform: translateX(6px); }
-          60%       { transform: translateX(-4px); }
-          80%       { transform: translateX(4px); }
+          20%  { transform: translateX(-6px); }
+          40%  { transform: translateX(6px); }
+          60%  { transform: translateX(-4px); }
+          80%  { transform: translateX(4px); }
         }
         .shake { animation: shake 0.4s ease; }
-
         input:-webkit-autofill {
           -webkit-box-shadow: 0 0 0 50px #fff inset;
           -webkit-text-fill-color: #1a1a1a;
@@ -148,23 +137,19 @@ export default function SignUpPage() {
 
       <div className="min-h-screen bg-[#f8f6f1] flex">
 
-        {/* ── Left decorative panel ── */}
+        {/* Left panel */}
         <div className="hidden lg:flex lg:w-1/2 bg-[#0f2d20] flex-col justify-between p-12 relative overflow-hidden">
           <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-[#1d9e75]/10" />
           <div className="absolute -bottom-32 -left-16 w-[500px] h-[500px] rounded-full bg-[#1d9e75]/5" />
-
-          {/* Logo */}
           <Link href="/" className="fraunces text-2xl text-[#e1f5ee] relative z-10">
             Medi<span className="text-[#1d9e75]">Book</span>
           </Link>
-
-          {/* Steps preview */}
           <div className="relative z-10 space-y-5">
             <p className="text-xs text-[#5dcaa5] uppercase tracking-widest mb-6">How it works</p>
             {[
-              { num: "1", title: "Create your account", desc: "Sign up in seconds — just your name, email and password." },
+              { num: "1", title: "Create your account",  desc: "Sign up in seconds — just your name, email and password." },
               { num: "2", title: "Pick a doctor & time", desc: "Browse available doctors and choose a convenient slot." },
-              { num: "3", title: "Show up & get care", desc: "Arrive on time — your appointment is confirmed instantly." },
+              { num: "3", title: "Show up & get care",   desc: "Arrive on time — your appointment is confirmed instantly." },
             ].map((step) => (
               <div key={step.num} className="flex gap-4">
                 <div className="w-7 h-7 rounded-full border border-[#1d9e75] flex items-center justify-center text-xs text-[#1d9e75] shrink-0 mt-0.5">
@@ -177,18 +162,13 @@ export default function SignUpPage() {
               </div>
             ))}
           </div>
-
-          {/* Footer note */}
-          <p className="text-xs text-[#7abfa0] relative z-10">
-            Final year project — Computer Engineering, 2025/2026
-          </p>
+          <p className="text-xs text-[#7abfa0] relative z-10">Final year project — Computer Engineering, 2025/2026</p>
         </div>
 
-        {/* ── Right form panel ── */}
+        {/* Right form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 overflow-y-auto">
           <div className="w-full max-w-md py-10 animate-[fadeSlideUp_0.6s_ease_both]">
 
-            {/* Mobile logo */}
             <Link href="/" className="fraunces text-xl text-[#0f4f3a] lg:hidden block mb-10">
               Medi<span className="text-[#1d9e75]">Book</span>
             </Link>
@@ -198,102 +178,73 @@ export default function SignUpPage() {
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
 
-              {/* Full name */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs uppercase tracking-widest text-[#999]">Full name</label>
                 <input
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Adebowale Emmanuel"
-                  required
+                  type="text" value={fullName} onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Adebowale Emmanuel" required
                   className="w-full bg-white border border-[#e0e0e0] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/10 transition-all duration-200"
                 />
               </div>
 
-              {/* Email */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs uppercase tracking-widest text-[#999]">Email</label>
                 <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@example.com"
-                  required
+                  type="email" value={email} onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com" required
                   className="w-full bg-white border border-[#e0e0e0] rounded-xl px-4 py-3 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/10 transition-all duration-200"
                 />
               </div>
 
-              {/* Password */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs uppercase tracking-widest text-[#999]">Password</label>
                 <div className="relative">
                   <input
-                    type={showPw ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
+                    type={showPw ? "text" : "password"} value={password}
+                    onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required
                     className="w-full bg-white border border-[#e0e0e0] rounded-xl px-4 py-3 pr-11 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none focus:border-[#1d9e75] focus:ring-2 focus:ring-[#1d9e75]/10 transition-all duration-200"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPw(!showPw)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors duration-200"
-                  >
+                  <button type="button" onClick={() => setShowPw(!showPw)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors duration-200">
                     <EyeIcon open={showPw} />
                   </button>
                 </div>
                 <PasswordStrength password={password} />
               </div>
 
-              {/* Confirm password */}
               <div className="flex flex-col gap-1.5">
                 <label className="text-xs uppercase tracking-widest text-[#999]">Confirm password</label>
                 <div className="relative">
                   <input
-                    type={showCf ? "text" : "password"}
-                    value={confirm}
-                    onChange={(e) => setConfirm(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className={`w-full bg-white border rounded-xl px-4 py-3 pr-11 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none focus:ring-2 transition-all duration-200 ${passwordsMismatch
-                        ? "border-red-300 focus:border-red-400 focus:ring-red-100"
-                        : passwordsMatch
-                          ? "border-[#1d9e75] focus:border-[#1d9e75] focus:ring-[#1d9e75]/10"
-                          : "border-[#e0e0e0] focus:border-[#1d9e75] focus:ring-[#1d9e75]/10"
-                      }`}
+                    type={showCf ? "text" : "password"} value={confirm}
+                    onChange={(e) => setConfirm(e.target.value)} placeholder="••••••••" required
+                    className={`w-full bg-white border rounded-xl px-4 py-3 pr-11 text-sm text-[#1a1a1a] placeholder-[#bbb] outline-none focus:ring-2 transition-all duration-200 ${
+                      passwordsMismatch ? "border-red-300 focus:border-red-400 focus:ring-red-100"
+                      : passwordsMatch  ? "border-[#1d9e75] focus:border-[#1d9e75] focus:ring-[#1d9e75]/10"
+                      : "border-[#e0e0e0] focus:border-[#1d9e75] focus:ring-[#1d9e75]/10"
+                    }`}
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowCf(!showCf)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors duration-200"
-                  >
+                  <button type="button" onClick={() => setShowCf(!showCf)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#aaa] hover:text-[#555] transition-colors duration-200">
                     <EyeIcon open={showCf} />
                   </button>
-                  {/* Match tick */}
                   {passwordsMatch && (
                     <svg className="absolute right-9 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1d9e75]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5}>
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   )}
                 </div>
-                {passwordsMismatch && (
-                  <p className="text-xs text-red-500">Passwords do not match</p>
-                )}
+                {passwordsMismatch && <p className="text-xs text-red-500">Passwords do not match</p>}
               </div>
 
-              {/* Error */}
               {error && (
                 <div className="shake bg-red-50 border border-red-200 text-red-600 text-sm px-4 py-3 rounded-xl">
                   {error}
                 </div>
               )}
 
-              {/* Submit */}
               <button
-                type="submit"
-                disabled={loading}
+                type="submit" disabled={loading}
                 className="w-full bg-[#0f4f3a] text-[#e1f5ee] py-3 rounded-xl text-sm font-medium hover:bg-[#0a3829] active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center gap-2 mt-1"
               >
                 {loading ? (
@@ -304,9 +255,7 @@ export default function SignUpPage() {
                     </svg>
                     Creating account…
                   </>
-                ) : (
-                  "Create account"
-                )}
+                ) : "Create account"}
               </button>
             </form>
 
@@ -318,9 +267,7 @@ export default function SignUpPage() {
 
             <p className="text-sm text-center text-[#777]">
               Already have an account?{" "}
-              <Link href="/sign-in" className="text-[#1d9e75] font-medium hover:underline">
-                Sign in
-              </Link>
+              <Link href="/sign-in" className="text-[#1d9e75] font-medium hover:underline">Sign in</Link>
             </p>
           </div>
         </div>
