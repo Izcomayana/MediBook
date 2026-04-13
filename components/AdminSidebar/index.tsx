@@ -66,7 +66,10 @@ export function AdminSidebar() {
     : "AD";
 
   return (
-    <Sidebar className="border-r border-[#1d3a28] !bg-[#0a1f15]">
+    <Sidebar
+      className="border-r border-[#1d3a28]"
+      style={{ "--sidebar": "#0a1f15" } as React.CSSProperties}
+    >
       <SidebarHeader className="px-5 py-5">
         <Link href="/" className="font-['Fraunces'] text-xl text-[#e1f5ee]">
           Medi<span className="text-[#1d9e75]">Book</span>
@@ -91,8 +94,8 @@ export function AdminSidebar() {
                       <Link
                         href={href}
                         className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${active
-                            ? "bg-[#1d9e75] text-white"
-                            : "text-[#7abfa0] hover:bg-[#0f3d28] hover:text-[#e1f5ee]"
+                          ? "bg-[#1d9e75] text-white"
+                          : "text-[#7abfa0] hover:bg-[#0f3d28] hover:text-[#e1f5ee]"
                           }`}
                       >
                         <Icon />

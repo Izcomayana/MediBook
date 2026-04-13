@@ -83,7 +83,7 @@ export default function AdminOverviewPage() {
           <main className="flex-1 flex flex-col min-w-0">
 
             {/* Top bar */}
-            <header className="sticky top-0 z-10 bg-[#0a1f15]/80 backdrop-blur-md border-b border-[#1d3a28] px-6 py-4 flex items-center justify-between">
+            <header className="sticky top-0 z-10 bg-[#0a1f15]/80 backdrop-blur-md border-b border-[#1d3a28] px-6 py-4 md:flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="text-[#5dcaa5] hover:text-[#e1f5ee] transition-colors" />
                 <div>
