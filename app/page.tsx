@@ -232,7 +232,8 @@ export default function LandingPage() {
           Medi<span className="text-[#1d9e75]">Book</span>
         </span>
         <p className="text-xs text-[#7abfa0]">
-          Final year project — Computer Engineering, 2025/2026
+          AWOKOYA Adebowale — Computer Engineering, <br /> 500 level 
+EES/21/22/0158
         </p>
       </footer>
     </>
