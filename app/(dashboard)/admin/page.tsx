@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy, limit, updateDoc, doc } from "firebase/firestore";
+import emailjs from "@emailjs/browser";
 import { db } from "@/lib/firebase";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
@@ -50,7 +51,34 @@ export default function AdminOverviewPage() {
   const updateStatus = async (id: string, status: "confirmed" | "cancelled") => {
     setUpdating(id);
     try {
+      // 1. Update Firestore
       await updateDoc(doc(db, "appointments", id), { status });
+
+      // 2. Find the appointment so we have the patient's details
+      const appt = appointments.find((a) => a.id === id);
+
+      // 3. Send email only when confirming
+      if (status === "confirmed" && appt) {
+        const formattedDate = new Date(appt.date + "T00:00:00").toLocaleDateString("en-GB", {
+          weekday: "long", day: "numeric", month: "long", year: "numeric",
+        });
+
+        await emailjs.send(
+          process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!,
+          process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!,
+          {
+            patient_name: appt.patientName,
+            patient_email: appt.patientEmail,
+            doctor_name: appt.doctorName,
+            specialty: appt.specialty,
+            date: formattedDate,
+            time: appt.timeSlot,
+          },
+          process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY!
+        );
+      }
+
+      // 4. Update local state so UI reflects instantly
       setAppointments((prev) =>
         prev.map((a) => (a.id === id ? { ...a, status } : a))
       );
@@ -82,7 +110,6 @@ export default function AdminOverviewPage() {
 
           <main className="flex-1 flex flex-col min-w-0">
 
-            {/* Top bar */}
             <header className="sticky top-0 z-10 bg-[#0a1f15]/80 backdrop-blur-md border-b border-[#1d3a28] px-6 py-4 md:flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <SidebarTrigger className="text-[#5dcaa5] hover:text-[#e1f5ee] transition-colors" />
@@ -98,7 +125,6 @@ export default function AdminOverviewPage() {
 
             <div className="flex-1 px-6 py-6 space-y-6 max-w-6xl mx-auto w-full">
 
-              {/* Stat cards */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {[
                   { label: "Total bookings", value: total, accent: "text-[#e1f5ee]", bg: "bg-[#0f3d28] border-[#1d3a28]" },
@@ -112,14 +138,11 @@ export default function AdminOverviewPage() {
                     style={{ animation: `fadeSlideUp 0.4s ease ${i * 80}ms both` }}
                   >
                     <p className="text-xs text-[#5dcaa5] mb-2">{s.label}</p>
-                    <p className={`fraunces text-3xl ${s.accent}`}>
-                      {loading ? "—" : s.value}
-                    </p>
+                    <p className={`fraunces text-3xl ${s.accent}`}>{loading ? "—" : s.value}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Recent appointments */}
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h2 className="fraunces text-xl text-[#e1f5ee]">Recent appointments</h2>
