@@ -1,0 +1,12 @@
+{
+  "name": "medibook-scripts",
+  "version": "1.0.0",
+  "description": "Server-side scripts for MediBook",
+  "main": "sendReminders.js",
+  "scripts": {
+    "send-reminders": "node sendReminders.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.0.0"
+  }
+}

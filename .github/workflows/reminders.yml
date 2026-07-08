@@ -1,0 +1,39 @@
+# .github/workflows/reminders.yml
+# Runs every day at 8:00 AM UTC and sends appointment reminders for the next day
+
+name: Daily Appointment Reminders
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # 8:00 AM UTC every day
+                            # Change to "0 7 * * *" for 7am, "0 9 * * *" for 9am etc.
+  workflow_dispatch:        # Also allows you to trigger it manually from GitHub
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+
+      - name: Install dependencies
+        run: node -e "require('firebase-admin')" 2>/dev/null || npm install firebase-admin --prefix /tmp/deps
+
+      - name: Install firebase-admin properly
+        run: |
+          cd scripts
+          npm install
+
+      - name: Run reminder script
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EMAILJS_SERVICE_ID:               ${{ secrets.EMAILJS_SERVICE_ID }}
+          EMAILJS_REMINDER_TEMPLATE_ID:     ${{ secrets.EMAILJS_REMINDER_TEMPLATE_ID }}
+          EMAILJS_PUBLIC_KEY:               ${{ secrets.EMAILJS_PUBLIC_KEY }}
+        run: node scripts/sendReminders.js
