@@ -36,4 +36,6 @@ jobs:
           EMAILJS_SERVICE_ID:               ${{ secrets.EMAILJS_SERVICE_ID }}
           EMAILJS_REMINDER_TEMPLATE_ID:     ${{ secrets.EMAILJS_REMINDER_TEMPLATE_ID }}
           EMAILJS_PUBLIC_KEY:               ${{ secrets.EMAILJS_PUBLIC_KEY }}
+          GMAIL_USER:                   ${{ secrets.GMAIL_USER }}
+          GMAIL_PASS:                   ${{ secrets.GMAIL_PASS }}
         run: node scripts/sendReminders.js
