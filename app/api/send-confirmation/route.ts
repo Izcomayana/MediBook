@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error("Confirmation email error:", error);
     return NextResponse.json(
-      { error: "Failed to send confirmation email" },
+      { error: "Failed to send confirmation email", detail: String(error) },
       { status: 500 }
     );
   }
