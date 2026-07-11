@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { collection, getDocs, query, orderBy, updateDoc, doc } from "firebase/firestore";
+import { toast } from "sonner";
 import { db } from "@/lib/firebase";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AdminSidebar } from "@/components/AdminSidebar";
@@ -91,16 +92,15 @@ export default function AdminAppointmentsPage() {
       // 1. Update Firestore
       await updateDoc(doc(db, "appointments", id), { status });
 
-      // 2. Find appointment details
       const appt = appointments.find((a) => a.id === id);
 
-      // 3. Send confirmation email via API route (Nodemailer)
+      // 2. Send confirmation email if confirming
       if (status === "confirmed" && appt) {
         const formattedDate = new Date(appt.date + "T00:00:00").toLocaleDateString("en-GB", {
           weekday: "long", day: "numeric", month: "long", year: "numeric",
         });
 
-        await fetch("/api/send-confirmation", {
+        const res = await fetch("/api/send-confirmation", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -112,10 +112,24 @@ export default function AdminAppointmentsPage() {
             time:         appt.timeSlot,
           }),
         });
+
+        if (!res.ok) {
+          // Roll back Firestore to pending
+          await updateDoc(doc(db, "appointments", id), { status: "pending" });
+          toast.error("Failed to send confirmation email. Appointment reset to pending.");
+          return;
+        }
+
+        toast.success(`Confirmed! Email sent to ${appt.patientEmail}`);
+      } else {
+        toast.success("Appointment cancelled.");
       }
 
-      // 4. Update local state
+      // 3. Update local state only on success
       setAppointments((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
+    } catch (err) {
+      console.error("updateStatus error:", err);
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setUpdating(null);
     }

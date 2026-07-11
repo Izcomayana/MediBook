@@ -3,8 +3,8 @@
 // and sends a reminder email to each patient via Nodemailer + Gmail
 
 const { initializeApp, cert } = require("firebase-admin/app");
-const { getFirestore }        = require("firebase-admin/firestore");
-const nodemailer              = require("nodemailer");
+const { getFirestore } = require("firebase-admin/firestore");
+const nodemailer = require("nodemailer");
 
 // ── Init Firebase Admin ────────────────────────────────────────────────────
 const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
@@ -26,6 +26,11 @@ async function sendReminderEmail({ patientName, patientEmail, doctorName, specia
     from: `"MediBook" <${process.env.GMAIL_USER}>`,
     to: patientEmail,
     subject: "Reminder: Your MediBook appointment is tomorrow ⏰",
+    replyTo: process.env.GMAIL_USER,
+    headers: {
+      "X-Priority": "1",
+      "X-Mailer": "MediBook",
+    },
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #f8f6f1; border-radius: 16px; overflow: hidden;">
         <div style="background: #0f2d20; padding: 32px 40px;">
@@ -104,12 +109,12 @@ async function main() {
     snap.docs.map((docSnap) => {
       const appt = docSnap.data();
       return sendReminderEmail({
-        patientName:  appt.patientName,
+        patientName: appt.patientName,
         patientEmail: appt.patientEmail,
-        doctorName:   appt.doctorName,
-        specialty:    appt.specialty,
-        date:         formatDate(appt.date),
-        time:         appt.timeSlot,
+        doctorName: appt.doctorName,
+        specialty: appt.specialty,
+        date: formatDate(appt.date),
+        time: appt.timeSlot,
       });
     })
   );

@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
-// ── Transporter ────────────────────────────────────────────────────────────
 const transporter = nodemailer.createTransport({
   service: "gmail",
   auth: {
@@ -10,16 +9,36 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// ── POST /api/send-confirmation ────────────────────────────────────────────
 export async function POST(req: NextRequest) {
   try {
     const { patientName, patientEmail, doctorName, specialty, date, time } =
       await req.json();
 
+    // Verify transporter is configured correctly before sending
+    await transporter.verify();
+
     await transporter.sendMail({
+      from: `"MediBook Hospital" <${process.env.GMAIL_USER}>`,
+      to: patientEmail,
+      subject: "Your MediBook appointment has been confirmed ✓",
+      // Add these two:
+      replyTo: process.env.GMAIL_USER,
+      headers: {
+        "X-Priority": "1",
+        "X-Mailer": "MediBook",
+      },
+      html: `...your existing html...`,
+    });
+
+    const info = await transporter.sendMail({
       from: `"MediBook" <${process.env.GMAIL_USER}>`,
       to: patientEmail,
       subject: "Your MediBook appointment has been confirmed ✓",
+      replyTo: process.env.GMAIL_USER,
+      headers: {
+        "X-Priority": "1",
+        "X-Mailer": "MediBook",
+      },
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 520px; margin: 0 auto; background: #f8f6f1; border-radius: 16px; overflow: hidden;">
           <div style="background: #0f2d20; padding: 32px 40px;">
@@ -61,8 +80,12 @@ export async function POST(req: NextRequest) {
       `,
     });
 
-    return NextResponse.json({ success: true });
+    // Log message ID so we can confirm it actually sent
+    console.log("Email sent. Message ID:", info.messageId);
+    return NextResponse.json({ success: true, messageId: info.messageId });
+
   } catch (error) {
+    // Log the full error so we can see exactly what Nodemailer says
     console.error("Confirmation email error:", error);
     return NextResponse.json(
       { error: "Failed to send confirmation email", detail: String(error) },
