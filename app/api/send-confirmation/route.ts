@@ -53,19 +53,19 @@ export async function POST(req: NextRequest) {
             </p>
             <div style="background: white; border-radius: 12px; border: 1px solid #e0e0e0; padding: 24px; margin-bottom: 32px;">
               <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ede8;">
-                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Doctor</span>
+                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Doctor: </span>
                 <span style="font-size: 13px; font-weight: 500; color: #1a1a1a;">${doctorName}</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ede8;">
-                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Specialty</span>
+                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Specialty: </span>
                 <span style="font-size: 13px; font-weight: 500; color: #1a1a1a;">${specialty}</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ede8;">
-                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Date</span>
+                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Date: </span>
                 <span style="font-size: 13px; font-weight: 500; color: #1a1a1a;">${date}</span>
               </div>
               <div style="display: flex; justify-content: space-between; padding: 10px 0;">
-                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Time</span>
+                <span style="font-size: 12px; color: #999; text-transform: uppercase;">Time: </span>
                 <span style="font-size: 13px; font-weight: 500; color: #1a1a1a;">${time}</span>
               </div>
             </div>

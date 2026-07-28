@@ -86,10 +86,28 @@ export function BookingModal({ doctor, onClose, onSuccess }: Props) {
         specialty: doctor.specialty,
         date: selectedDate,
         timeSlot: selectedSlot,
-        status: "pending",
+        status: "confirmed",
         createdAt: serverTimestamp(),
       });
       onSuccess();
+
+      const formattedDate = new Date(selectedDate + "T00:00:00").toLocaleDateString("en-GB", {
+        weekday: "long", day: "numeric", month: "long", year: "numeric",
+      });
+
+      await fetch("/api/send-confirmation", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patientName: user.displayName ?? "Patient",
+          patientEmail: user.email,
+          doctorName: doctor.name,
+          specialty: doctor.specialty,
+          date: formattedDate,
+          time: selectedSlot,
+        }),
+      });
+
     } catch {
       setError("Failed to book appointment. Please try again.");
       setLoading(false);
@@ -149,8 +167,8 @@ export function BookingModal({ doctor, onClose, onSuccess }: Props) {
                     key={d.value}
                     onClick={() => handleDateSelect(d.value)}
                     className={`py-2.5 px-3 rounded-xl text-xs font-medium text-left transition-all duration-200 border ${selectedDate === d.value
-                        ? "bg-[#0f4f3a] text-[#e1f5ee] border-[#0f4f3a]"
-                        : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#1d9e75] hover:text-[#0f4f3a]"
+                      ? "bg-[#0f4f3a] text-[#e1f5ee] border-[#0f4f3a]"
+                      : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#1d9e75] hover:text-[#0f4f3a]"
                       }`}
                   >
                     <span className="block font-semibold">{d.label.split(" ")[0]}</span>
@@ -174,10 +192,10 @@ export function BookingModal({ doctor, onClose, onSuccess }: Props) {
                       disabled={booked}
                       onClick={() => setSelectedSlot(slot)}
                       className={`py-2.5 rounded-xl text-xs font-medium transition-all duration-200 border ${booked
-                          ? "bg-[#f0ede8] text-[#ccc] border-[#e8e4dc] cursor-not-allowed line-through"
-                          : selectedSlot === slot
-                            ? "bg-[#0f4f3a] text-[#e1f5ee] border-[#0f4f3a]"
-                            : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#1d9e75] hover:text-[#0f4f3a]"
+                        ? "bg-[#f0ede8] text-[#ccc] border-[#e8e4dc] cursor-not-allowed line-through"
+                        : selectedSlot === slot
+                          ? "bg-[#0f4f3a] text-[#e1f5ee] border-[#0f4f3a]"
+                          : "bg-white text-[#555] border-[#e0e0e0] hover:border-[#1d9e75] hover:text-[#0f4f3a]"
                         }`}
                     >
                       {booked ? "Taken" : slot}
